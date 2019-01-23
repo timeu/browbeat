@@ -14,6 +14,8 @@
     - "{{keystone_ssl_visualizations}}"
 
 - name: Generate Keystone Dashboards
+  vars:
+    id: "{{ item.file_name | basename | regex_replace('\\.json','') }}"
   template:
     src: dashboard.json.j2
     dest: "{{browbeat_path}}/visualization/Keystone/dashboard/{{item.file_name}}"
@@ -32,6 +34,8 @@
     - "{{shaker_cloud_comparison_visualizations}}"
 
 - name: Generate Shaker Dashboards
+  vars:
+    id: "{{ item.file_name | basename | regex_replace('\\.json','') }}"
   template:
     src: dashboard.json.j2
     dest: "{{browbeat_path}}/visualization/Shaker/dashboard/{{item.file_name}}"
@@ -56,13 +60,11 @@
 
   ignore_errors: true
 
-- name: Remove Visuals
-  uri:
-    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/visualization/{{ item | basename | regex_replace('\.json','')}}
-    method: DELETE
-    body: "{{ lookup('file', item) }}"
-    body_format: json
-    status_code: 404, 200
+
+- name: Read visualisations
+  tags: combine
+  set_fact:
+    visualizations: "{{ visualizations | default([]) + [ lookup('file', item) | from_json ] }}"
   with_fileglob:
     - "{{ browbeat_path }}/visualization/Keystone/visualization/*"
     - "{{ browbeat_path }}/visualization/Neutron/visualization/*"
@@ -71,15 +73,11 @@
     - "{{ browbeat_path }}/visualization/Performance-Dashboard/visualization/*"
     - "{{ browbeat_path }}/visualization/Network-Performance/visualization/*"
 
-  ignore_errors: true
 
-- name: Remove Dashboards
-  uri:
-    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/dashboard/{{ item | basename | regex_replace('\.json','')}}
-    method: DELETE
-    body: "{{ lookup('file', item) }}"
-    body_format: json
-    status_code: 404, 200
+- name: Read dashboards
+  tags: combine
+  set_fact:
+    dashboards: "{{ dashboards | default([]) + [ lookup('file', item) | from_json  ] }}"
   with_fileglob:
     - "{{ browbeat_path }}/visualization/Keystone/dashboard/*"
     - "{{ browbeat_path }}/visualization/Neutron/dashboard/*"
@@ -88,90 +86,142 @@
     - "{{ browbeat_path }}/visualization/Performance-Dashboard/dashboard/*"
     - "{{ browbeat_path }}/visualization/Network-Performance/dashboard/*"
 
-  ignore_errors: true
+- name: Initialize import variable
+  tags: combine
+  vars:
+    index_pattern:
+      id: "[browbeat-rally-]YYYY.MM.DD"
+      type: index-pattern 
+      attributes:
+        title: "browbeat-rally-*"
+        timeFieldName: "timestamp"
+  set_fact:
+    data:
+      objects: "[{{ index_pattern  }}] + {{ visualizations }} + {{ dashboards }}"
 
-- name: Upload Searches
-  uri:
-    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/search/{{ item | basename | regex_replace('\.json','') }}
-    method: PUT
-    body: "{{ lookup('file', item) }}"
-    body_format: json
-    status_code: 201
-  with_fileglob:
-    - "{{ browbeat_path }}/visualization/Keystone/search/*"
-    - "{{ browbeat_path }}/visualization/Neutron/search/*"
-    - "{{ browbeat_path }}/visualization/OpenStack-Workers/search/*"
-    - "{{ browbeat_path }}/visualization/Shaker/search/*"
-    - "{{ browbeat_path }}/visualization/Performance-Dashboard/search/*"
-    - "{{ browbeat_path }}/visualization/Network-Performance/search/*"
-  ignore_errors: true
-
-- name: Upload Visuals
-  uri:
-    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/visualization/{{ item | basename | regex_replace('\.json','')}}
-    method: PUT
-    body: "{{ lookup('file', item) }}"
-    body_format: json
-    status_code: 201
-  with_fileglob:
-    - "{{ browbeat_path }}/visualization/Keystone/visualization/*"
-    - "{{ browbeat_path }}/visualization/Neutron/visualization/*"
-    - "{{ browbeat_path }}/visualization/OpenStack-Workers/visualization/*"
-    - "{{ browbeat_path }}/visualization/Shaker/visualization/*"
-    - "{{ browbeat_path }}/visualization/Performance-Dashboard/visualization/*"
-    - "{{ browbeat_path }}/visualization/Network-Performance/visualization/*"
-
-  ignore_errors: true
-
-- name: Upload Dashboards
-  uri:
-    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/dashboard/{{ item | basename | regex_replace('\.json','')}}
-    method: PUT
-    body: "{{ lookup('file', item) }}"
-    body_format: json
-    status_code: 201
-  with_fileglob:
-    - "{{ browbeat_path }}/visualization/Keystone/dashboard/*"
-    - "{{ browbeat_path }}/visualization/Neutron/dashboard/*"
-    - "{{ browbeat_path }}/visualization/OpenStack-Workers/dashboard/*"
-    - "{{ browbeat_path }}/visualization/Shaker/dashboard/*"
-    - "{{ browbeat_path }}/visualization/Performance-Dashboard/dashboard/*"
-    - "{{ browbeat_path }}/visualization/Network-Performance/dashboard/*"
-  ignore_errors: true
-
-- name: Cleanup Keystone Visualizations
-  file:
-    path: "{{browbeat_path}}/visualization/Keystone/visualization/{{item.title}}.json"
-    state: absent
-  with_flattened:
-    - "{{keystone_controller_count_visualizations}}"
-    - "{{keystone_osp_version_token_visualizations}}"
-    - "{{keystone_processes_threads_visualizations}}"
-    - "{{keystone_ssl_visualizations}}"
-
-- name: Cleanup Keystone Dashboards
-  file:
-    path: "{{browbeat_path}}/visualization/Keystone/dashboard/{{item.file_name}}"
-    state: absent
-  with_flattened:
-    - "{{keystone_controller_count_dashboards}}"
-    - "{{keystone_osp_version_token_dashboards}}"
-    - "{{keystone_processes_threads_dashboards}}"
-    - "{{keystone_ssl_dashboards}}"
-
-- name: Cleanup Shaker Visualizations
-  file:
-    path: "{{browbeat_path}}/visualization/Shaker/visualization/{{item.title}}.json"
-    state: absent
-  with_items:
-    - "{{shaker_scenario_throughput_concurrency_visualizations}}"
-    - "{{shaker_cloud_comparison_visualizations}}"
+- name: Generate file
+  tags: combine
+  copy:
+    content: "{{ data }}"
+    dest: "kibana_import.json"
 
 
-- name: Cleanup Shaker Dashboards
-  file:
-    path: "{{browbeat_path}}/visualization/Shaker/dashboard/{{item.file_name}}"
-    state: absent
-  with_items:
-    - "{{shaker_scenario_throughput_concurrency_dashboard}}"
-    - "{{shaker_cloud_comparison_dashboard}}"
+#- name: Remove Visuals
+#  uri:
+#    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/visualization/{{ item | basename | regex_replace('\.json','')}}
+#    method: DELETE
+#    body: "{{ lookup('file', item) }}"
+#    body_format: json
+#    status_code: 404, 200
+#  with_fileglob:
+#    - "{{ browbeat_path }}/visualization/Keystone/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Neutron/visualization/*"
+#    - "{{ browbeat_path }}/visualization/OpenStack-Workers/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Shaker/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Performance-Dashboard/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Network-Performance/visualization/*"
+#
+#  ignore_errors: true
+#
+#- name: Remove Dashboards
+#  uri:
+#    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/dashboard/{{ item | basename | regex_replace('\.json','')}}
+#    method: DELETE
+#    body: "{{ lookup('file', item) }}"
+#    body_format: json
+#    status_code: 404, 200
+#  with_fileglob:
+#    - "{{ browbeat_path }}/visualization/Keystone/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Neutron/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/OpenStack-Workers/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Shaker/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Performance-Dashboard/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Network-Performance/dashboard/*"
+#
+#  ignore_errors: true
+#
+#- name: Upload Searches
+#  uri:
+#    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/search/{{ item | basename | regex_replace('\.json','') }}
+#    method: PUT
+#    body: "{{ lookup('file', item) }}"
+#    body_format: json
+#    status_code: 201
+#  with_fileglob:
+#    - "{{ browbeat_path }}/visualization/Keystone/search/*"
+#    - "{{ browbeat_path }}/visualization/Neutron/search/*"
+#    - "{{ browbeat_path }}/visualization/OpenStack-Workers/search/*"
+#    - "{{ browbeat_path }}/visualization/Shaker/search/*"
+#    - "{{ browbeat_path }}/visualization/Performance-Dashboard/search/*"
+#    - "{{ browbeat_path }}/visualization/Network-Performance/search/*"
+#  ignore_errors: true
+#
+#- name: Upload Visuals
+#  uri:
+#    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/visualization/{{ item | basename | regex_replace('\.json','')}}
+#    method: PUT
+#    body: "{{ lookup('file', item) }}"
+#    body_format: json
+#    status_code: 201
+#  with_fileglob:
+#    - "{{ browbeat_path }}/visualization/Keystone/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Neutron/visualization/*"
+#    - "{{ browbeat_path }}/visualization/OpenStack-Workers/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Shaker/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Performance-Dashboard/visualization/*"
+#    - "{{ browbeat_path }}/visualization/Network-Performance/visualization/*"
+#
+#  ignore_errors: true
+#
+#- name: Upload Dashboards
+#  uri:
+#    url: http://{{ es_ip }}:{{ es_local_port }}/{{ es_kibana_index }}/dashboard/{{ item | basename | regex_replace('\.json','')}}
+#    method: PUT
+#    body: "{{ lookup('file', item) }}"
+#    body_format: json
+#    status_code: 201
+#  with_fileglob:
+#    - "{{ browbeat_path }}/visualization/Keystone/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Neutron/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/OpenStack-Workers/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Shaker/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Performance-Dashboard/dashboard/*"
+#    - "{{ browbeat_path }}/visualization/Network-Performance/dashboard/*"
+#  ignore_errors: true
+#
+#- name: Cleanup Keystone Visualizations
+#  file:
+#    path: "{{browbeat_path}}/visualization/Keystone/visualization/{{item.title}}.json"
+#    state: absent
+#  with_flattened:
+#    - "{{keystone_controller_count_visualizations}}"
+#    - "{{keystone_osp_version_token_visualizations}}"
+#    - "{{keystone_processes_threads_visualizations}}"
+#    - "{{keystone_ssl_visualizations}}"
+#
+#- name: Cleanup Keystone Dashboards
+#  file:
+#    path: "{{browbeat_path}}/visualization/Keystone/dashboard/{{item.file_name}}"
+#    state: absent
+#  with_flattened:
+#    - "{{keystone_controller_count_dashboards}}"
+#    - "{{keystone_osp_version_token_dashboards}}"
+#    - "{{keystone_processes_threads_dashboards}}"
+#    - "{{keystone_ssl_dashboards}}"
+#
+#- name: Cleanup Shaker Visualizations
+#  file:
+#    path: "{{browbeat_path}}/visualization/Shaker/visualization/{{item.title}}.json"
+#    state: absent
+#  with_items:
+#    - "{{shaker_scenario_throughput_concurrency_visualizations}}"
+#    - "{{shaker_cloud_comparison_visualizations}}"
+#
+#
+#- name: Cleanup Shaker Dashboards
+#  file:
+#    path: "{{browbeat_path}}/visualization/Shaker/dashboard/{{item.file_name}}"
+#    state: absent
+#  with_items:
+#    - "{{shaker_scenario_throughput_concurrency_dashboard}}"
+#    - "{{shaker_cloud_comparison_dashboard}}"

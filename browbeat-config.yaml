@@ -1,6 +1,6 @@
 # Basic set of initial stress tests to test overcloud before running complete set of benchmarks.
 browbeat:
-  cloud_name: openstack
+  cloud_name: dev
   rerun: 1
   # Two types of rerun:
   # iteration reruns on the iteration
@@ -12,10 +12,10 @@ ansible:
   metadata_playbook: ansible/gather/stockpile.yml
   ssh_config: ansible/ssh-config
 elasticsearch:
-  enabled: false
-  host: 1.1.1.1
+  enabled: true
+  host: clip-mon-ingest.imp.ac.at
   port: 9200
-  regather: false
+  regather: true
   metadata_files:
     - name: hardware-metadata
       file: metadata/hardware-metadata.json
@@ -26,9 +26,9 @@ elasticsearch:
     - name: version
       file: metadata/version.json
 grafana:
-  enabled: false
-  host: example.grafana.com
-  port: 3000
+  enabled: true
+  host: https://clip-mon-dash.imp.ac.at/grafana
+  port: 80
   dashboards:
     - openstack-general-system-performance
 perfkit:

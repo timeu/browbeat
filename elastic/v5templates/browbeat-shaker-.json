@@ -10,34 +10,34 @@
         "result": {
             "properties": {
                 "browbeat_scenario": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "browbeat_uuid": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "cloud_name": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "grafana_url": {
                     "properties": {
                         "openstack-general-system-performance": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         }
                     }
                 },
                 "result": {
                     "properties": {
                         "metric": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "result_type": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "value": {
                             "type": "double"
@@ -50,20 +50,20 @@
                 "record": {
                     "properties": {
                         "agent": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "node": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "scenario": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "test": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         }
                     }
                 },
@@ -72,64 +72,64 @@
                         "deployment": {
                             "properties": {
                                 "template": {
-                                    "index": "not_analyzed",
-                                    "type": "string"
+                                    "index": "true",
+                                    "type": "keyword"
                                 }
                             }
                         },
                         "description": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "title": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "execution": {
                             "properties": {
                                 "progression": {
-                                    "index": "not_analyzed",
-                                    "type": "string"
+                                    "index": "true",
+                                    "type": "keyword"
                                 },
                                 "tests": {
                                     "properties": {
                                         "class": {
-                                            "index": "not_analyzed",
-                                            "type": "string"
+                                            "index": "true",
+                                            "type": "keyword"
                                         },
                                         "method": {
-                                            "index": "not_analyzed",
-                                            "type": "string"
+                                            "index": "true",
+                                            "type": "keyword"
                                         },
                                         "time": {
-                                            "index": "not_analyzed",
+                                            "index": "true",
                                             "type": "long"
                                         },
                                         "title": {
-                                            "index": "not_analyzed",
-                                            "type": "string"
+                                            "index": "true",
+                                            "type": "keyword"
                                         }
                                     }
                                 }
                             }
                         },
                         "file_name": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "title": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         }
                     }
                 },
                 "shaker_uuid": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "template": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "timestamp": {
                     "type": "date",

@@ -14,55 +14,56 @@
                 "browbeat_scenario": {
                     "properties": {
                         "benchmarks": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         }
                     }
                 },
                 "browbeat_uuid": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "cloud_name": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "grafana_url": {
                     "properties": {
                         "openstack-general-system-performance": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         }
                     }
                 },
                 "perfkit_setup": {
                     "properties": {
                         "cloud": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "image": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "machine_instance": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "machine_type": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "perfkitbenchmarker_version": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         },
                         "vm_count": {
-                            "type": "string"
+                            "index": true,
+                            "type": "text"
                         },
                         "zone": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         }
                     }
                 },

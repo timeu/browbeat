@@ -6,72 +6,53 @@
         "number_of_replicas": 0
     },
     "mappings": {
-        "result": {
+        "_doc": {
             "properties": {
+                "type": { "type": "keyword" },
                 "action": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
+                },
+                "action_name": {
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "browbeat_uuid": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "cloud_name": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "grafana_url": {
                     "properties": {
                         "openstack-general-system-performance": {
-                            "index": "not_analyzed",
-                            "type": "string"
+                            "index": "true",
+                            "type": "keyword"
                         }
                     }
                 },
                 "result": {
-                    "type": "string"
-                },
-                "scenario": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "timestamp": {
-                    "type": "date",
-                    "format": "strict_date_optional_time||epoch_millis"
-                }
-            }
-        },
-        "error": {
-            "properties": {
-                "action": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "action_name": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "browbeat_uuid": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "cloud_name": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": true,
+                    "type": "text"
                 },
                 "error_msg": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "error_type": {
-                    "index": "not_analyzed",
-                    "type": "string"
+                    "index": "true",
+                    "type": "keyword"
+                },"scenario": {
+                    "index": "true",
+                    "type": "keyword"
                 },
                 "timestamp": {
                     "type": "date",
                     "format": "strict_date_optional_time||epoch_millis"
                 }
             }
-        }
+        }   
     }
 }

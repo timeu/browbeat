@@ -4,27 +4,28 @@
        "result": {
            "properties": {
                "action": {
-                   "index": "not_analyzed",
-                   "type": "string"
+                   "index": "true",
+                   "type": "keyword"
                 },
                "browbeat_cloud_name": {
-                   "index": "not_analyzed",
-                   "type": "string"
+                   "index": "true",
+                   "type": "keyword"
                 },
                "message": {
                    "properties": {
                        "openstack-general-system-performance": {
-                           "index": "not_analyzed",
-                           "type": "string"
+                           "index": "true",
+                           "type": "keyword"
                         }
                     }
                 },
                "level": {
-                   "type": "string"
+                   "type": "text",
+                   "index": true
                 },
                "hostname": {
-                   "index": "not_analyzed",
-                   "type": "string"
+                   "index": "true",
+                   "type": "keyword"
                 },
                "timestamp": {
                    "type": "date",

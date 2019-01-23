@@ -9,7 +9,7 @@ ansible:
   ssh_config: ansible/ssh-config
 elasticsearch:
   enabled: true
-  host: 1.1.1.1
+  host: clip-mon-ingest.imp.ac.at
   port: 9200
   regather: true
   metadata_files:
@@ -23,8 +23,8 @@ elasticsearch:
       file: metadata/version.json
 grafana:
   enabled: true
-  host: example.grafana.com
-  port: 3000
+  host: https://clip-mon-dash.imp.ac.at/grafana
+  port: 80
   dashboards:
     - openstack-general-system-performance
 perfkit:

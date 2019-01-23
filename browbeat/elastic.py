@@ -97,7 +97,7 @@ class Elastic(object):
             es_item = {}
             es_item['_id'] = item['_id']
             es_item['_source'] = item['result']
-            es_item['_type'] = item['_type']
+            es_item['_type'] = '_doc'
             es_item['_index'] = self.index
             output.append(es_item)
         return output
@@ -480,6 +480,8 @@ class Elastic(object):
             results.append(self.query_uuid(index, uuids))
         for result in results:
             for value in result:
+                if 'raw' not in value['_source']:
+                    import pdb;pdb.set_trace()
                 if value['_source']['browbeat_uuid'] not in metadata:
                     metadata[value['_source']['browbeat_uuid']] = {}
                     if 'version' in value['_source']:
@@ -665,6 +667,8 @@ class Elastic(object):
         body = {"query": {
                 "bool": {"must": [
                     {"term": {"browbeat_uuid": browbeat_id}},
+                    #{"term": {"type": "error"}}
+                    {"exists": {"field": "error_type" }}
                 ]}
                 }}
         """
@@ -678,7 +682,7 @@ class Elastic(object):
         """
         page = self.es.search(
             index=index,
-            doc_type='error',
+          #  doc_type='error',
             scroll='1m',
             size=1000,
             body=body,
@@ -692,15 +696,19 @@ class Elastic(object):
         body = {
             "query": {
                 "bool": {
-                    "should": [
+                    "must": [
                         {
                             "term": {
                                 "browbeat_uuid": browbeat_uuid
-                                }}]}}}
+                                }},
+                            {"exists": {"field": "raw"}}
+                           # {"term": { "type": "result"}}
+
+                       ]}}}
         self.logger.info("Making query against {}".format(index))
         page = self.es.search(
             index=index,
-            doc_type='result',
+           # doc_type='result',
             scroll='1m',
             size=1000,
             body=body,
@@ -729,11 +737,11 @@ class Elastic(object):
         result['browbeat_uuid'] = str(browbeat_uuid)
         result['cloud_name'] = self.config['browbeat']['cloud_name']
         result['browbeat_config'] = self.config
+        result['type'] = _type
         data['result'] = result
         data['test_name'] = test_name
         data['result_dir'] = result_dir
         data['identifier'] = identifier
-        data['_type'] = _type
         data['_id'] = _id
         self.cache.append(data)
         now = datetime.datetime.utcnow()

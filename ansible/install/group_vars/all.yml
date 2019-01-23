@@ -31,13 +31,13 @@ browbeat_venv: "{{browbeat_path}}/.browbeat-venv"
 rally_venv: "{{browbeat_path}}/.rally-venv"
 
 # Rally version to install
-rally_version: 1.2.0
+rally_version: 1.3.0
 
 # The default Shaker venv
 shaker_venv: "{{browbeat_path}}/.shaker-venv"
 
 # Shaker version to Install
-shaker_version: 1.1.3
+shaker_version: 1.2.0
 
 # PerfKitBenchmarker Settings
 perfkit_venv: "{{browbeat_path}}/.perfkit-venv"
@@ -111,7 +111,7 @@ browbeat_guest_images:
     convert_to_raw: false
 
 # DNS Server to add
-dns_server: 8.8.8.8
+dns_server: 172.16.80.12
 
 # Proxy Settings
 proxy_env: {}
@@ -417,10 +417,10 @@ rsyslog_forwarding: true
 # due to utilizing elasticsearch connectors, general
 # usage may want to disable this option due to security reasons
 # in which case you should set this to false
-es_ip:
+es_ip: clip-mon-ingest.imp.ac.at
 es_local_port: 9200
 es_listen_external: true
-elastic5: false
+elastic5: true
 ### kibana options ###
 # change this to affect nginx-wrapped htpasswd authentication
 kibana_user: admin
